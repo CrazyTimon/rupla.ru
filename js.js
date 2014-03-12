@@ -149,6 +149,7 @@ Views.ModalManual = Backbone.View.extend({
             error: function(){
                 that.relatedCategory = new Models.ModalRelatedCategory();
                 that.relatedCategory.set(that.relatedCollection.last().get('categories'));
+                that.render();
             },
             success: function(){
                 that.relatedCollection.add({
