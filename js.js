@@ -40,7 +40,7 @@ var Views = new Backbone.View(),
         'categories': domain + '/categories/',
         'category': domain + '/category/',
         'related_categories': domain + '/related_categories/',
-        'related_categories/auto': domain + '/related_categories/auto/'
+        'related_categories/auto': domain + '/related_categories/auto/new/'
     };
 
 Collection.CategoryList = Backbone.Collection.extend({
@@ -49,7 +49,9 @@ Collection.CategoryList = Backbone.Collection.extend({
 
 Models.ModalRelatedCategory = Backbone.Model.extend({
     setActiveCategory: function(id){
-        _.findWhere(this.toJSON(), {id:parseInt(id)}).active = true;
+        _.each(this.toJSON(), function(category){
+            category.active = category.id == parseInt(id);
+        });
     }
 });
 
@@ -85,11 +87,26 @@ Views.ModalManual = Backbone.View.extend({
     },
     bindRelCat: function(e){
         //Очень плохо что id берется из dom а не из модели или коллекции
-        var newTitle = _.findWhere(this.relatedCategory.toJSON(), { id: +this.$('select:last').val()}).title;
+        var lastRelatedCat = +this.$('select:last').val(),
+            newTitle,
+            penultIndex,
+            categories;
+
+        //если есть несколько селектбоксов, и у последнего не выбрано значение, то берем модель и значение у предпоследнего.
+        if(lastRelatedCat === -1 ){
+            lastRelatedCat = +this.$('.js-category-select:last').val();
+            penultIndex = this.relatedCollection.length-1; 
+            categories = this.relatedCollection.get(penultIndex).toJSON().categories;
+            newTitle = _.findWhere(categories, { id: lastRelatedCat}).title;
+        } else {
+            newTitle = _.findWhere(this.relatedCategory.toJSON(), { id: lastRelatedCat}).title;
+        }
+
+        
         this.model.url = urls['category'] + this.model.get('id') + '/';
         // this.model.set('related_category_id', +this.$('select:last').val());
         this.model.set({
-            'related_category_id': +this.$('select:last').val(),
+            'related_category_id': lastRelatedCat,
             'related_category_title': newTitle
         });
         this.model.save(this.model.toJSON(), {patch:true});
@@ -103,7 +120,7 @@ Views.ModalManual = Backbone.View.extend({
             bool = true,
             concat = [];
         _.each(this.relatedCollection.models, function(model){
-            if(bool && model.get('id') == el.value){
+            if(bool && model.get('id') == $(el).data('id')){
                 model.set({last:true});
                 concat.push(model);
                 bool = false;
@@ -287,7 +304,8 @@ Views.CategoryList = Backbone.View.extend({
     },
     addCategory: function(model, collection){
         var category = new Views.Category({
-            model:model
+            model: model,
+            className: this.empty?'warning':''
         });
         category.render();
         this.$('.js-categories').append(category.$el);

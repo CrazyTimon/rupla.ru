@@ -106,7 +106,7 @@
     <form id="manual-select-form">
       {{#each relatedCollection}}
         <select class="form-control main {{#if last}}js-last-category-select{{else}}js-category-select{{/if}}" data-id="{{id}}">
-          <option value="0"> -- </option>
+          <option value="-1"> -- </option>
           {{#each categories}}
           <option value="{{id}}" {{#if active}}selected{{/if}} >{{title}}</option>
           {{/each}}
