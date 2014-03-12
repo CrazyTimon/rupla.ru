@@ -56,7 +56,7 @@ Models.ModalRelatedCategory = Backbone.Model.extend({
 });
 
 /*
-*   Модальное окно при ручнойнастройки категорий
+*   Модальное окно ручной настройки категорий
 */
 Views.ModalManual = Backbone.View.extend({
     events: {
@@ -68,8 +68,7 @@ Views.ModalManual = Backbone.View.extend({
     initialize: function(options){
         var that = this;
         this.parent = options.parent;
-        _.bindAll(this, 
-            'addToCollection',
+        _.bindAll(this,
             'setRelatedCategory',
             'resetRelatedCategory');
         this.relatedCollection = new Backbone.Collection();
@@ -83,7 +82,6 @@ Views.ModalManual = Backbone.View.extend({
             });
             that.render();
         });
-        this.relatedCollection.on('add', this.addToCollection);
     },
     bindRelCat: function(e){
         //Очень плохо что id берется из dom а не из модели или коллекции
@@ -163,9 +161,6 @@ Views.ModalManual = Backbone.View.extend({
         });
         
     },
-    addToCollection: function(model){
-
-    },
     render: function(){
         var source = $('#modalManual').html(),
             template = Handlebars.compile(source),
@@ -184,7 +179,7 @@ Views.ModalManual = Backbone.View.extend({
 });
 
 /*
-*   Модальное окно при ручнойнастройки категорий
+*   Модальное окно автоматической настройки категорий
 */
 Views.ModalAuto = Backbone.View.extend({
     events: {
@@ -193,11 +188,13 @@ Views.ModalAuto = Backbone.View.extend({
     },
     initialize: function(options){
         var that = this;
+        _.bindAll(this, 'successBind', 'errorBind');
         this.parent = options.parent;
         this.relatedCategory = new Models.ModalRelatedCategory();
         this.relatedCategory.url = urls['related_categories/auto']+this.parent.model.get('id')+'/';
         $.when(this.relatedCategory.fetch()).then(function(){
             that.render();
+            that.$('.js-bind').prop('disabled', false);
         });
     },
     render: function(){
@@ -211,17 +208,31 @@ Views.ModalAuto = Backbone.View.extend({
         this.$('.modal-body').html(html);
     },
     bindRelCat: function(e){
-        var newTitle = _.findWhere(this.relatedCategory.toJSON(), { id: +this.$('input[name=category]:checked').val()}).title;
+        var that = this,
+            newTitle = _.findWhere(this.relatedCategory.toJSON(), { id: +this.$('input[name=category]:checked').val()}).title;
         //Очень плохо что id берется из dom а не из модели или коллекции
         this.model.url = urls['category'] + this.model.get('id') + '/';
         this.model.set({
             'related_category_id': + this.$('input[name=category]:checked').val(),
             'related_category_title': newTitle
         });
-        this.model.save(this.model.toJSON(), {patch:true});
-        this.$('.modal-body').prepend(successAlert("синхранизация прошла успешно"));
+        this.model.save(this.model.toJSON(), {
+            patch:true,
+            success: this.successBind,
+            error: this.errorBind
+        });
+        $('#auto-select-modal').on('hidden.bs.modal', function () {
+            that.undelegateEvents();
+        });
+    },
+    successBind: function(){
+        notification(successAlert("Cинхранизация прошла успешно"));
         $('#auto-select-modal').modal('hide');
         this.parent.render();
+    },
+    errorBind: function(){
+        this.$('.modal-body').prepend(errorAlert("Ошибка синхронизации"));
+        this.$('.js-bind').prop('disabled', true);
     },
     goToManual: function(){
         $('#auto-select-modal').modal('hide');
