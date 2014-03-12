@@ -88,6 +88,7 @@ Views.ModalManual = Backbone.View.extend({
     bindRelCat: function(e){
         //Очень плохо что id берется из dom а не из модели или коллекции
         var lastRelatedCat = +this.$('select:last').val(),
+            that = this,
             newTitle,
             penultIndex,
             categories;
@@ -113,6 +114,9 @@ Views.ModalManual = Backbone.View.extend({
         notification(successAlert("Cинхранизация прошла успешно"));
         $('#manual-select-modal').modal('hide');
         $.when(this.parent.model.fetch()).then($.proxy(this.parent.render, this.parent));
+        $('#manual-select-modal').on('hidden.bs.modal', function () {
+            that.undelegateEvents();
+        })
     },
     resetRelatedCategory: function(e){
         var that = this,
@@ -259,7 +263,6 @@ Views.Category = Backbone.View.extend({
         $('#auto-select-modal').modal('show');
     },
     unbind: function(){
-        debugger;
         var backboneSync = Backbone.sync,
             that = this;
         
