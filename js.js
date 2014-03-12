@@ -40,7 +40,7 @@ var Views = new Backbone.View(),
         'categories': domain + '/categories/',
         'category': domain + '/category/',
         'related_categories': domain + '/related_categories/',
-        'related_categories/auto': domain + '/related_categories/auto/new/'
+        'related_categories/auto': domain + '/related_categories/auto/'
     };
 
 Collection.CategoryList = Backbone.Collection.extend({
@@ -195,7 +195,7 @@ Views.ModalAuto = Backbone.View.extend({
         var that = this;
         this.parent = options.parent;
         this.relatedCategory = new Models.ModalRelatedCategory();
-        this.relatedCategory.url = urls['related_categories/auto'];
+        this.relatedCategory.url = urls['related_categories/auto']+this.parent.model.get('id')+'/';
         $.when(this.relatedCategory.fetch()).then(function(){
             that.render();
         });
