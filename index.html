@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>App</title>
+
+  <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+  
+  <style>
+    .unbind {
+      margin-left: 2em;
+    }
+    .ctrl a {
+      margin-left: 1em;
+    }
+    .h {
+      display: none;
+    }
+  </style>
+
+</head>
+<body>
+  
+  <div class="container">
+    
+    <div class="panel panel-default" id="categories-control">
+      <div class="panel-heading">
+        <strong>Categories setting</strong>
+        <div class="pull-right ctrl">
+          <a id="empty-switch" class="show-empty" href="#">show empty</a>
+          <a id="orphan-switch" class="show-orphans" href="#">show only orphans</a>
+          <a href="#" class="refresh glyphicon glyphicon-refresh" data-toggle="tooltip" data-placement="bottom" title="refresh"></a>
+        </div>
+      </div>
+
+      <div class="panel-body" id="result">
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Modal windows -->
+  <!-- Auto -->
+  <div class="modal fade" id="auto-select-modal" tabindex="-1" role="dialog" aria-labelledby="auto" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Auto</h4>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="gtm btn btn-default">go to manual</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">cancel</button>
+          <button type="button" class="js-bind bind btn btn-primary" data-loading-text="binding...">bind</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Manual -->
+  <div class="modal fade" id="manual-select-modal" tabindex="-1" role="dialog" aria-labelledby="manual" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Set RelatedCategory</h4>
+          </div>
+          <div class="modal-body">
+            
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="gta btn btn-default">go to auto</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">cancel</button>
+            <button type="button" class="js-bind bind btn btn-primary" data-loading-text="binding...">bind</button>
+          </div>
+        </div>
+    </div>
+  </div>
+
+  <!-- JavaScript block -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+  <script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+  <script src="underscore-min.js"></script>
+  <script src="backbone-min.js"></script>
+  <script src="handlebars-v1.3.0.js"></script>
+
+  <script id="modalAuto" type="text/x-handlebars-template">
+    <strong>{{title}}</strong>
+    <p>Found:</p>
+    <form>
+      {{#each relatedCollection}}
+      <div class="radio">
+        <label>{{title}}
+          <input type="radio" name="category" value="{{id}}" checked="checked"/>
+        </label>
+      </div>
+      {{/each}}
+    </form>
+  </script>
+  <script id="modalManual" type="text/x-handlebars-template">
+    <p>Set RelatedCategory for <strong>{{model.title}}</strong></p>
+    <form id="manual-select-form">
+      {{#each relatedCollection}}
+        <select class="form-control main {{#if last}}js-last-category-select{{else}}js-category-select{{/if}}" data-id="{{id}}">
+          <option value="0"> -- </option>
+          {{#each categories}}
+          <option value="{{id}}" {{#if active}}selected{{/if}} >{{title}}</option>
+          {{/each}}
+        </select>
+      {{/each}}
+    </form>
+  </script>
+  <script id="categoryList" type="text/x-handlebars-template">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>RelatedCategory1</th>
+          <th>CTRL</th>
+        </tr>
+      </thead>
+      <tbody class="js-categories">
+        
+      </tbody>
+    </table>
+  </script>
+  <script id="category" type="text/x-handlebars-template">
+    {{!-- <tr class="no"> --}}
+      <td>{{title}}</td>
+      <td>{{related_category_title}}</td>
+      <td>
+        <a href="#" class="manual glyphicon glyphicon-link text-success" data-toggle="tooltip" title="manual"></a>
+        <a href="#" class="auto glyphicon glyphicon-search" data-toggle="tooltip" title="auto"></a>
+        <a href="#" class="unbind glyphicon glyphicon-remove text-danger" data-toggle="tooltip" title="unbind"></a>
+      </td>
+    {{!-- </tr> --}}
+  </script>
+
+  <script src="js.js"></script>
+</body>
+</html>
