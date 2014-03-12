@@ -1,8 +1,6 @@
 rupla.ru
 ========
 
-<h2>rupla.ru<h2>
-
 issue and API docs:
 https://docs.google.com/a/altami.ru/document/d/1VSWL8Wo2FcLdv1x3Btf9moQt8ad5WWmjHzPXngbpK0k/edit#
 
