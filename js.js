@@ -15,7 +15,7 @@ function alertHtmlBilder (alertClass, strongText) {
   return function (alertMsg) {
       msgBody.empty().html(alertMsg);
       return alert.append(msgBody);
-  }    
+  };    
 }
 
 function notification (notice) {
@@ -105,7 +105,7 @@ Views.ModalManual = Backbone.View.extend({
 
         
         this.model.url = urls['category'] + this.model.get('id') + '/';
-        // this.model.set('related_category_id', +this.$('select:last').val());
+
         this.model.set({
             'related_category_id': lastRelatedCat,
             'related_category_title': newTitle
@@ -114,9 +114,10 @@ Views.ModalManual = Backbone.View.extend({
         notification(successAlert("Cинхранизация прошла успешно"));
         $('#manual-select-modal').modal('hide');
         $.when(this.parent.model.fetch()).then($.proxy(this.parent.render, this.parent));
+
         $('#manual-select-modal').on('hidden.bs.modal', function () {
             that.undelegateEvents();
-        })
+        });
     },
     resetRelatedCategory: function(e){
         var that = this,
@@ -142,7 +143,7 @@ Views.ModalManual = Backbone.View.extend({
         this.relatedCategory.setActiveCategory(el.value);
         this.relatedCollection.last().set({
             last: false
-        })
+        });
         this.relatedCategory = new Models.ModalRelatedCategory();
         this.relatedCategory.url = urls['related_categories'] + el.value;
 
@@ -218,7 +219,7 @@ Views.ModalAuto = Backbone.View.extend({
             'related_category_title': newTitle
         });
         this.model.save(this.model.toJSON(), {patch:true});
-        this.$('.modal-body').prepend(successAlert("синхранизация прошла успешно"))
+        this.$('.modal-body').prepend(successAlert("синхранизация прошла успешно"));
         $('#auto-select-modal').modal('hide');
         this.parent.render();
     },
@@ -263,16 +264,11 @@ Views.Category = Backbone.View.extend({
         $('#auto-select-modal').modal('show');
     },
     unbind: function(){
-        var backboneSync = Backbone.sync,
-            that = this;
-        
-        Backbone.sync = function (method, model, options) {
-            backboneSync('patch', model, options);
-        };
+        var that = this;
 
-        this.model.set('related_category_id', null);
-        this.model.set('related_category_title', null);
-        $.when(this.model.save()).then(function(){
+        this.model.set({'related_category_id': null});
+        this.model.set({'related_category_title': null});
+        $.when(this.model.save(null,{ patch: true })).then(function(){
             that.render();
         });
     },
@@ -299,7 +295,7 @@ Views.CategoryList = Backbone.View.extend({
     empty: false,
     only_orphan: false,
     initialize: function(){
-        _.bindAll(this, 'addCategory')
+        _.bindAll(this, 'addCategory');
         this.collection = new Collection.CategoryList();
         this.collection.on('add', this.addCategory);
         this.render();
