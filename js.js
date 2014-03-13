@@ -43,6 +43,8 @@ var Views = new Backbone.View(),
         'related_categories/auto': domain + '/related_categories/auto/'
     };
 
+Collection.test = Backbone.Collection.extend({});
+
 Collection.CategoryList = Backbone.Collection.extend({
     url: urls['categories']
 });
@@ -72,8 +74,9 @@ Views.ModalManual = Backbone.View.extend({
             'setRelatedCategory',
             'resetRelatedCategory',
             'successBind',
-            'errorBind');
-        this.relatedCollection = new Backbone.Collection();
+            'errorBind',
+            'bindRelCat');
+        this.relatedCollection = new Collection.test();
         this.relatedCategory = new Models.ModalRelatedCategory();
         this.relatedCategory.url = urls['related_categories'];
         $.when(this.relatedCategory.fetch()).then(function(){
@@ -126,10 +129,12 @@ Views.ModalManual = Backbone.View.extend({
         notification(successAlert("Cинхранизация прошла успешно"));
         $('#manual-select-modal').modal('hide');
         this.parent.render();
+        this.undelegateEvents();
     },
     errorBind: function(){
         this.$('.modal-body').prepend(errorAlert("Ошибка синхронизации"));
         this.$('.js-bind').prop('disabled', true);
+        this.undelegateEvents();
     },
     resetRelatedCategory: function(e){
         var that = this,
@@ -159,7 +164,7 @@ Views.ModalManual = Backbone.View.extend({
         });
         this.relatedCategory = new Models.ModalRelatedCategory();
         this.relatedCategory.url = urls['related_categories'] + el.value;
-
+        console.log(this.relatedCollection.toJSON());
         this.relatedCategory.fetch({
             error: function(){
                 that.relatedCategory = new Models.ModalRelatedCategory();
