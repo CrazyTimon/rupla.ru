@@ -121,7 +121,7 @@ Views.ModalManual = Backbone.View.extend({
             error: this.errorBind
         });
         
-        $('#auto-select-modal').on('hidden.bs.modal', function () {
+        $('#manual-select-modal').on('hidden.bs.modal', function () {
             that.undelegateEvents();
         });
     },
@@ -129,12 +129,10 @@ Views.ModalManual = Backbone.View.extend({
         notification(successAlert("Cинхранизация прошла успешно"));
         $('#manual-select-modal').modal('hide');
         this.parent.render();
-        this.undelegateEvents();
     },
     errorBind: function(){
         this.$('.modal-body').prepend(errorAlert("Ошибка синхронизации"));
         this.$('.js-bind').prop('disabled', true);
-        this.undelegateEvents();
     },
     resetRelatedCategory: function(e){
         var that = this,
@@ -164,7 +162,6 @@ Views.ModalManual = Backbone.View.extend({
         });
         this.relatedCategory = new Models.ModalRelatedCategory();
         this.relatedCategory.url = urls['related_categories'] + el.value;
-        console.log(this.relatedCollection.toJSON());
         this.relatedCategory.fetch({
             error: function(){
                 that.relatedCategory = new Models.ModalRelatedCategory();
