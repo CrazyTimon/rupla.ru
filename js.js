@@ -70,7 +70,9 @@ Views.ModalManual = Backbone.View.extend({
         this.parent = options.parent;
         _.bindAll(this,
             'setRelatedCategory',
-            'resetRelatedCategory');
+            'resetRelatedCategory',
+            'successBind',
+            'errorBind');
         this.relatedCollection = new Backbone.Collection();
         this.relatedCategory = new Models.ModalRelatedCategory();
         this.relatedCategory.url = urls['related_categories'];
@@ -81,6 +83,7 @@ Views.ModalManual = Backbone.View.extend({
                 categories:that.relatedCategory.toJSON()
             });
             that.render();
+            that.$('.js-bind').prop('disabled', false);
         });
     },
     bindRelCat: function(e){
@@ -108,14 +111,25 @@ Views.ModalManual = Backbone.View.extend({
             'related_category_id': lastRelatedCat,
             'related_category_title': newTitle
         });
-        this.model.save(this.model.toJSON(), {patch:true});
-        notification(successAlert("Cинхранизация прошла успешно"));
-        $('#manual-select-modal').modal('hide');
-        $.when(this.parent.model.fetch()).then($.proxy(this.parent.render, this.parent));
 
-        $('#manual-select-modal').on('hidden.bs.modal', function () {
+        this.model.save(this.model.toJSON(), {
+            patch:true,
+            success: this.successBind,
+            error: this.errorBind
+        });
+        
+        $('#auto-select-modal').on('hidden.bs.modal', function () {
             that.undelegateEvents();
         });
+    },
+    successBind: function(){
+        notification(successAlert("Cинхранизация прошла успешно"));
+        $('#manual-select-modal').modal('hide');
+        this.parent.render();
+    },
+    errorBind: function(){
+        this.$('.modal-body').prepend(errorAlert("Ошибка синхронизации"));
+        this.$('.js-bind').prop('disabled', true);
     },
     resetRelatedCategory: function(e){
         var that = this,
@@ -217,13 +231,15 @@ Views.ModalAuto = Backbone.View.extend({
             'related_category_id': + this.$('input[name=category]:checked').val(),
             'related_category_title': newTitle
         });
+        
+        $('#auto-select-modal').on('hidden.bs.modal', function () {
+            that.undelegateEvents();
+        });
+        
         this.model.save(this.model.toJSON(), {
             patch:true,
             success: this.successBind,
             error: this.errorBind
-        });
-        $('#auto-select-modal').on('hidden.bs.modal', function () {
-            that.undelegateEvents();
         });
     },
     successBind: function(){
@@ -316,7 +332,7 @@ Views.CategoryList = Backbone.View.extend({
     addCategory: function(model, collection){
         var category = new Views.Category({
             model: model,
-            className: this.empty?'warning':''
+            className: model.get('is_empty')?'warning':''
         });
         category.render();
         this.$('.js-categories').append(category.$el);
