@@ -88,6 +88,9 @@ Views.ModalManual = Backbone.View.extend({
             that.render();
             that.$('.js-bind').prop('disabled', false);
         });
+        $('#manual-select-modal').on('hidden.bs.modal', function () {
+            that.undelegateEvents();
+        });
     },
     bindRelCat: function(e){
         //Очень плохо что id берется из dom а не из модели или коллекции
@@ -119,10 +122,6 @@ Views.ModalManual = Backbone.View.extend({
             patch:true,
             success: this.successBind,
             error: this.errorBind
-        });
-        
-        $('#manual-select-modal').on('hidden.bs.modal', function () {
-            that.undelegateEvents();
         });
     },
     successBind: function(){
@@ -213,8 +212,18 @@ Views.ModalAuto = Backbone.View.extend({
         this.relatedCategory = new Models.ModalRelatedCategory();
         this.relatedCategory.url = urls['related_categories/auto']+this.parent.model.get('id')+'/';
         $.when(this.relatedCategory.fetch()).then(function(){
-            that.render();
-            that.$('.js-bind').prop('disabled', false);
+            if(_.isEmpty(that.relatedCategory.toJSON())){
+                notification(errorAlert("Автоматически ничего не подабралось"));
+                that.undelegateEvents();
+            } else {
+                $('#auto-select-modal').modal('show');
+                that.render();
+                that.delegateEvents();
+                that.$('.js-bind').prop('disabled', false);
+            }
+        });
+        $('#auto-select-modal').on('hidden.bs.modal', function () {
+            that.undelegateEvents();
         });
     },
     render: function(){
@@ -225,7 +234,7 @@ Views.ModalAuto = Backbone.View.extend({
                 relatedCollection:this.relatedCategory.toJSON()
             });
 
-        this.$('.modal-body').html(html);
+        this.$el.html(html);
     },
     bindRelCat: function(e){
         var that = this,
@@ -235,10 +244,6 @@ Views.ModalAuto = Backbone.View.extend({
         this.model.set({
             'related_category_id': + this.$('input[name=category]:checked').val(),
             'related_category_title': newTitle
-        });
-        
-        $('#auto-select-modal').on('hidden.bs.modal', function () {
-            that.undelegateEvents();
         });
         
         this.model.save(this.model.toJSON(), {
@@ -294,7 +299,6 @@ Views.Category = Backbone.View.extend({
                             model: this.model,
                             parent: this
                         });
-        $('#auto-select-modal').modal('show');
     },
     unbind: function(){
         var that = this;

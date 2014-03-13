@@ -44,21 +44,7 @@
   <!-- Modal windows -->
   <!-- Auto -->
   <div class="modal fade" id="auto-select-modal" tabindex="-1" role="dialog" aria-labelledby="auto" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">Auto</h4>
-        </div>
-        <div class="modal-body">
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="gtm btn btn-default">go to manual</button>
-          <button type="button" class="btn btn-default" data-dismiss="modal">cancel</button>
-          <button type="button" class="js-bind bind btn btn-primary" data-loading-text="binding...">bind</button>
-        </div>
-      </div>
-    </div>
+    
   </div>
 
   <!-- Manual -->
@@ -89,17 +75,32 @@
   <script src="handlebars-v1.3.0.js"></script>
 
   <script id="modalAuto" type="text/x-handlebars-template">
-    <strong>{{title}}</strong>
-    <p>Found:</p>
-    <form>
-      {{#each relatedCollection}}
-      <div class="radio">
-        <label>{{title}}
-          <input type="radio" name="category" value="{{id}}" checked="checked"/>
-        </label>
+  <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Auto</h4>
+        </div>
+        <div class="modal-body">
+          <strong>{{title}}</strong>
+          <p>Found:</p>
+          <form>
+            {{#each relatedCollection}}
+            <div class="radio">
+              <label>{{title}}
+                <input type="radio" name="category" value="{{id}}" checked="checked"/>
+              </label>
+            </div>
+            {{/each}}
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="gtm btn btn-default">go to manual</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">cancel</button>
+          <button type="button" class="js-bind bind btn btn-primary" data-loading-text="binding...">bind</button>
+        </div>
       </div>
-      {{/each}}
-    </form>
+    </div>
   </script>
   <script id="modalManual" type="text/x-handlebars-template">
     <p>Set RelatedCategory for <strong>{{model.title}}</strong></p>
