@@ -148,6 +148,7 @@ Views.ModalManual = Backbone.View.extend({
         this.relatedCollection.reset(concat);
         this.relatedCategory = new Models.ModalRelatedCategory(this.relatedCollection.last().get('categories'));
         this.setRelatedCategory({value: el.value});
+        this.$('.js-bind').prop('disabled', false);
     },
     setRelatedCategory: function(e){
         var that = this,
@@ -164,6 +165,7 @@ Views.ModalManual = Backbone.View.extend({
                 that.relatedCategory = new Models.ModalRelatedCategory();
                 that.relatedCategory.set(that.relatedCollection.last().get('categories'));
                 that.render();
+                that.$('.js-bind').prop('disabled', false);
             },
             success: function(){
                 that.relatedCollection.add({
@@ -172,6 +174,7 @@ Views.ModalManual = Backbone.View.extend({
                     categories: that.relatedCategory.toJSON()
                 });
                 that.render();
+                that.$('.js-bind').prop('disabled', false);
             }
         });
         
