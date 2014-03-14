@@ -1,21 +1,22 @@
-var
-      errorAlert = alertHtmlBilder('alert-danger', 'Error'),
-      successAlert = alertHtmlBilder('alert-success', 'Success');
-
-function alertHtmlBilder (alertClass, strongText) {
-  var
-      msgBody = $('<span>'),
-      closeBtn = $('<button>').addClass('close')
-                              .attr({'type': 'button', 'aria-hidden': true, 'data-dismiss': 'alert'})
-                              .html("&times;"),
-      alert = $('<div>').addClass('alert alert-dismissable')
-                        .addClass(alertClass)
-                        .append(closeBtn)
-                        .append($('<strong>').text(strongText + '! '));
-  return function (alertMsg) {
-      msgBody.empty().html(alertMsg);
-      return alert.append(msgBody);
-  };    
+function alertHtmlBilder (alertMsg, alertClass, strongText) {
+    var msgBody,
+        closeBtn,
+        alert;
+    if(_.isUndefined(alertClass) || _.isUndefined(strongText)){
+        alertClass = 'alert-danger'; 
+        strongText = 'Error';
+    }
+    msgBody = $('<span>'),
+    closeBtn = $('<button>').addClass('close')
+                            .attr({'type': 'button', 'aria-hidden': true, 'data-dismiss': 'alert', 'style':''})
+                            .html("&times;"),
+    alert = $('<div>').addClass('alert alert-dismissable')
+                      .addClass(alertClass)
+                      .append(closeBtn)
+                      .append($('<strong>').text(strongText + '! '));
+    msgBody.empty().html(alertMsg);
+    alert.append(msgBody);
+    return alert;
 }
 
 function notification (notice) {
@@ -86,7 +87,6 @@ Views.ModalManual = Backbone.View.extend({
                 categories:that.relatedCategory.toJSON()
             });
             that.render();
-            that.$('.js-bind').prop('disabled', false);
         });
         $('#manual-select-modal').on('hidden.bs.modal', function () {
             that.undelegateEvents();
@@ -125,12 +125,12 @@ Views.ModalManual = Backbone.View.extend({
         });
     },
     successBind: function(){
-        notification(successAlert("Cинхранизация прошла успешно"));
+        notification(alertHtmlBilder("Cинхранизация прошла успешно", 'alert-success', 'Success'));
         $('#manual-select-modal').modal('hide');
         this.parent.render();
     },
     errorBind: function(){
-        this.$('.modal-body').prepend(errorAlert("Ошибка синхронизации"));
+        this.$('.modal-body').prepend(alertHtmlBilder("Ошибка синхронизации"));
         this.$('.js-bind').prop('disabled', true);
     },
     resetRelatedCategory: function(e){
@@ -166,7 +166,6 @@ Views.ModalManual = Backbone.View.extend({
                 that.relatedCategory = new Models.ModalRelatedCategory();
                 that.relatedCategory.set(that.relatedCollection.last().get('categories'));
                 that.render();
-                that.$('.js-bind').prop('disabled', false);
             },
             success: function(){
                 that.relatedCollection.add({
@@ -175,7 +174,6 @@ Views.ModalManual = Backbone.View.extend({
                     categories: that.relatedCategory.toJSON()
                 });
                 that.render();
-                that.$('.js-bind').prop('disabled', false);
             }
         });
         
@@ -187,9 +185,12 @@ Views.ModalManual = Backbone.View.extend({
                 model: this.model.toJSON(),
                 relatedCollection: this.relatedCollection.toJSON()
             },
-            html = template(params);
+            html = template(params),
+            isDisableBtn;
 
         this.$('.modal-body').html(html);
+        isDisableBtn = this.$('select:first').val() === '-1';
+        this.$('.js-bind').prop('disabled', isDisableBtn);
     },
     goToAuto: function(){
         $('#manual-select-modal').modal('hide');
@@ -213,7 +214,7 @@ Views.ModalAuto = Backbone.View.extend({
         this.relatedCategory.url = urls['related_categories/auto']+this.parent.model.get('id')+'/';
         $.when(this.relatedCategory.fetch()).then(function(){
             if(_.isEmpty(that.relatedCategory.toJSON())){
-                notification(errorAlert("Автоматически ничего не подабралось"));
+                notification(alertHtmlBilder("Автоматически ничего не подабралось"));
                 that.undelegateEvents();
             } else {
                 $('#auto-select-modal').modal('show');
@@ -253,12 +254,12 @@ Views.ModalAuto = Backbone.View.extend({
         });
     },
     successBind: function(){
-        notification(successAlert("Cинхранизация прошла успешно"));
+        notification(alertHtmlBilder("Cинхранизация прошла успешно", 'alert-success', 'Success'));
         $('#auto-select-modal').modal('hide');
         this.parent.render();
     },
     errorBind: function(){
-        this.$('.modal-body').prepend(errorAlert("Ошибка синхронизации"));
+        this.$('.modal-body').prepend(alertHtmlBilder("Ошибка синхронизации"));
         this.$('.js-bind').prop('disabled', true);
     },
     goToManual: function(){
